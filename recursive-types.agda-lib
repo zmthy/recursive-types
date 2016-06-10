@@ -1,0 +1,4 @@
+name: recursive-types
+include: src
+depend:
+  standard-library
