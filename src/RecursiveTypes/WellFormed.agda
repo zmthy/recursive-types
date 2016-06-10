@@ -21,9 +21,9 @@ open import Relation.Nullary
 
 open import RecursiveTypes.Syntax
 
--- A well-formedness proof for a type guarantees its wfctivity by
--- disallowing a set of references in scope until passing through a pair
--- type constructor.
+-- A well-formedness proof for a type guarantees the type's contractivity by
+-- disallowing a set of references in scope until passing through a pair type
+-- constructor.
 data WellFormed {n} (m : Fin (suc n)) : Type n → Set where
   int : WellFormed m Int
   pair : ∀ {A B} → WellFormed zero A → WellFormed zero B
@@ -33,8 +33,8 @@ data WellFormed {n} (m : Fin (suc n)) : Type n → Set where
   rec : ∀ {A} → WellFormed (suc m) A → WellFormed m (μ A)
   ref : ∀ {x} → m ≤ inject₁ x → WellFormed m (Ref x)
 
--- A lemma on numbers drawn from a finite set: no such number is ever
--- equal to or greater than its exclusive upper bound.
+-- A lemma on numbers drawn from a finite set: no such number is ever equal to
+-- or greater than its exclusive upper bound.
 <-bound : ∀ {n} {x : Fin n} → ¬ (fromℕ n ≤ inject₁ x)
 <-bound {zero} {()} p
 <-bound {suc n} {zero} ()
@@ -98,8 +98,8 @@ well-formed? m (Ref x) with m ≤? inject₁ x
 ... | no ¬p = no (λ { (ref p) → ¬p p })
 
 -- A lemma on WellFormed: if a type A is well-formed under the variable
--- restriction m, then it is well-formed under any other restriction
--- less than m.
+-- restriction m, then it is well-formed under any other restriction less than
+-- m.
 weaken : ∀ {n m} {A : Type n} (x : Fin′ m)
          → WellFormed m A → WellFormed (inject x) A
 weaken x int = int
