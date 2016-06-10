@@ -1,11 +1,18 @@
--- Syntax of recursive types.
-open import RecursiveTypes.Syntax
+-- Syntax of simple values.
+open import RecursiveTypes.Value
 
--- Well-formedness (contractivity) of syntactic types.
-open import RecursiveTypes.WellFormed
+-- Inductively defined syntax of recursive types.
+open import RecursiveTypes.Inductive.Type
 
--- Semantics of syntactic types as trees of potentially infinite depth.
-open import RecursiveTypes.Semantics
+-- Well-formedness (contractivity) of inductively defined types.
+open import RecursiveTypes.Inductive.WellFormed
 
--- Subtyping between semantic types and soundness proof.
-open import RecursiveTypes.Subtyping
+-- Coinductively defined syntax of recursive types.
+open import RecursiveTypes.Coinductive.Type
+
+-- Meaning of the coinductive types over the values.
+open import RecursiveTypes.Coinductive.Semantics
+
+-- Subtyping between coinductive types, with proof of soundness and completeness
+-- in relation to the subset relation between the semantic types.
+open import RecursiveTypes.Coinductive.Subtyping

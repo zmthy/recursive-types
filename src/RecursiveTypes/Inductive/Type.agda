@@ -1,4 +1,4 @@
-module RecursiveTypes.Syntax where
+module RecursiveTypes.Inductive.Type where
 
 open import Data.Empty
   using ( ⊥-elim )

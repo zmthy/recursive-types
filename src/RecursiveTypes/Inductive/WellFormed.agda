@@ -1,4 +1,4 @@
-module RecursiveTypes.WellFormed where
+module RecursiveTypes.Inductive.WellFormed where
 
 open import Data.Fin
   using ( Fin ; zero ; suc
@@ -19,7 +19,7 @@ open import Relation.Binary
 open import Relation.Nullary
   using ( ¬_ ; Dec ; yes ; no )
 
-open import RecursiveTypes.Syntax
+open import RecursiveTypes.Inductive.Type
 
 -- A well-formedness proof for a type guarantees the type's contractivity by
 -- disallowing a set of references in scope until passing through a pair type
