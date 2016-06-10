@@ -58,12 +58,12 @@ data Substs : ℕ → Set where
 -- coinductive type is only constructed by a corresponding constructor in the
 -- syntax.
 mutual
-  ∞-unfold : ∀ {n B} → WellFormed (fromℕ n) B → Substs n → Type
-  ∞-unfold int         v = Int
-  ∞-unfold (pair p q)  v = apply-substs p v ⨯ apply-substs q v
-  ∞-unfold (union p q) v = ∞-unfold p v ∨ ∞-unfold q v
-  ∞-unfold (rec p)     v = ∞-unfold p (rec p ∷ v)
-  ∞-unfold (ref p)     v = ⊥-elim (<-bound p)
+  ∞unfold′ : ∀ {n B} → WellFormed (fromℕ n) B → Substs n → Type
+  ∞unfold′ int         v = Int
+  ∞unfold′ (pair p q)  v = apply-substs p v ⨯ apply-substs q v
+  ∞unfold′ (union p q) v = ∞unfold′ p v ∨ ∞unfold′ q v
+  ∞unfold′ (rec p)     v = ∞unfold′ p (rec p ∷ v)
+  ∞unfold′ (ref p)     v = ⊥-elim (<-bound p)
 
   -- This definition uses Agda's copattern syntax to show productivity.  The
   -- base case applies ∞-unfold in a way that will not terminate, so we assert
@@ -71,5 +71,8 @@ mutual
   -- copattern of the field for the resulting ∞Type.
   apply-substs : ∀ {n} {B : Inductive.Type n}
                  → WellFormed zero B → Substs n → ∞Type
-  type (apply-substs p []) = ∞-unfold p []
+  type (apply-substs p []) = ∞unfold′ p []
   apply-substs p (q ∷ v)   = apply-substs (wf p [ weaken! q ]) v
+
+∞unfold : ∀ {A} → WellFormed _ A → Type
+∞unfold p = ∞unfold′ p []
