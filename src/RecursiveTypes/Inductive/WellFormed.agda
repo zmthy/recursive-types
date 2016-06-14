@@ -20,6 +20,8 @@ open import Relation.Nullary
   using ( ¬_ ; Dec ; yes ; no )
 
 open import RecursiveTypes.Inductive.Type
+  as Type
+  hiding ( Substs )
 
 -- A well-formedness proof for a type guarantees the type's contractivity by
 -- disallowing a set of references in scope until passing through a pair type
@@ -173,3 +175,24 @@ wf ref     q [ p ] | no ¬p   = wf-reduce q ¬p
 unfold : ∀ {n m} {A : Type (suc n)}
          → WellFormed (suc m) A → WellFormed m (A [ μ A ])
 unfold p = wf weaken₁ p [ rec p ]
+
+-- A list of substitutions: essentially a length-indexed vector, but the type of
+-- each element in the list is indexed by the reverse index (the length of the
+-- tail after it) that it appears at.
+data Substs : (n : ℕ) → Fin (suc n) → Set where
+  [] : ∀ {n} → Substs n zero
+  _∷_ : ∀ {n m} {A : Type n}
+        → WellFormed m A → Substs n m → Substs (suc n) (suc m)
+
+-- Forget the well-formedness of the substitutions.
+forget : ∀ {n m} → Substs n m → Type.Substs n m
+forget [] = []
+forget (_∷_ {A = A} p v) = A ∷ forget v
+
+-- If a type is well-formed with no restrictions, then applying some
+-- substitutions remains well-formed.
+wf_[_]* : ∀ {n} {A : Type n}
+          → WellFormed zero A → (v : Substs n (fromℕ n))
+          → WellFormed zero (A [ forget v ]*)
+wf_[_]* {zero}  p []      = p
+wf_[_]* {suc n} p (q ∷ v) = wf wf p [ weaken! q ] [ v ]*

@@ -6,12 +6,6 @@ open import Data.Empty
 open import Data.Fin
   using ( zero ; fromℕ )
 
-open import Data.Nat
-  using ( ℕ ; suc )
-
-open import Data.Product
-  using ( proj₁ ; proj₂ )
-
 import RecursiveTypes.Inductive.Type
   as Inductive
 
@@ -38,13 +32,6 @@ infixl 11 _⨯_
 
 open ∞Type public
 
--- A list of substitutions: essentially a length-indexed vector, but the type of
--- each element in the list is indexed by the reverse index (the length of the
--- tail after it) that it appears at.
-data Substs : ℕ → Set where
-  [] : Substs 0
-  _∷_ : ∀ {n A} → WellFormed (fromℕ n) A → Substs n → Substs (suc n)
-
 -- Any well-formed syntactic type can be infinitely unfolded into a defined
 -- type.  The unfolding includes a list of substitutions to apply once a
 -- coinductive point is encountered: this is necessary to ensure the points of
@@ -58,7 +45,7 @@ data Substs : ℕ → Set where
 -- coinductive type is only constructed by a corresponding constructor in the
 -- syntax.
 mutual
-  ∞unfold′ : ∀ {n B} → WellFormed (fromℕ n) B → Substs n → Type
+  ∞unfold′ : ∀ {n B} → WellFormed (fromℕ n) B → Substs n (fromℕ n) → Type
   ∞unfold′ int         v = Int
   ∞unfold′ (pair p q)  v = apply-substs p v ⨯ apply-substs q v
   ∞unfold′ (union p q) v = ∞unfold′ p v ∨ ∞unfold′ q v
@@ -70,8 +57,8 @@ mutual
   -- that the result will be productive by nesting the definition in the
   -- copattern of the field for the resulting ∞Type.
   apply-substs : ∀ {n} {B : Inductive.Type n}
-                 → WellFormed zero B → Substs n → ∞Type
-  type (apply-substs p []) = ∞unfold′ p []
+                 → WellFormed zero B → Substs n (fromℕ n) → ∞Type
+  type (apply-substs {0} p []) = ∞unfold′ p []
   apply-substs p (q ∷ v)   = apply-substs (wf p [ weaken! q ]) v
 
 ∞unfold : ∀ {A} → WellFormed _ A → Type

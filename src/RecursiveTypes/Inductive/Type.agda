@@ -4,13 +4,16 @@ open import Data.Empty
   using ( ⊥-elim )
 
 open import Data.Fin
-  using ( Fin ; zero ; suc ; fromℕ )
+  using ( Fin ; zero ; suc ; fromℕ ; toℕ ; _ℕ-_ )
 
 open import Data.Nat
   using ( ℕ ; zero ; suc )
 
 open import Function
   using ( _∘_ )
+
+open import Relation.Binary.PropositionalEquality
+  using ( _≡_ ; refl )
 
 open import Relation.Nullary
   using ( ¬_ ; Dec ; yes ; no )
@@ -76,6 +79,8 @@ max? {suc (suc n)} (suc x)  with max? x
 max? {suc (suc n)} (suc .(fromℕ n)) | yes max = yes max
 max? {suc (suc n)} (suc x)          | no ¬p = no (¬p ∘ max-pre)
 
+infixl 12 _[_] _[_]*
+
 -- Substitute a type as the largest reference in another type, reducing the
 -- number of references as a result.
 _[_] : ∀ {n} → Type (suc n) → Type n → Type n
@@ -87,4 +92,19 @@ Ref x   [ A ] with max? x
 Ref ._  [ A ] | yes max  = A
 Ref x   [ A ] | no ¬p    = Ref (reduce ¬p)
 
-infix 12 _[_]
+-- A list of substitutions: essentially a length-indexed vector, but the type of
+-- each element in the list is indexed by the reverse index (the length of the
+-- tail after it) that it appears at.
+data Substs : (n : ℕ) → Fin (suc n) → Set where
+  [] : ∀ {n} → Substs n zero
+  _∷_ : ∀ {n m} → Type n → Substs n m → Substs (suc n) (suc m)
+
+-- toℕ reverses fromℕ.
+reverse : ∀ n → toℕ (fromℕ n) ≡ n
+reverse zero                      = refl
+reverse (suc n) rewrite reverse n = refl
+
+-- Apply all substitutions to a type, leaving no free variables.
+_[_]* : ∀ {n m} → Type n → Substs n m → Type (toℕ (n ℕ- m))
+_[_]* {n}     B []      rewrite reverse n = B
+_[_]* {suc n} B (A ∷ v) = B [ A ] [ v ]*
